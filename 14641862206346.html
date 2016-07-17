@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
     
-  Hello MWeb - Azure Yu
+  自动引用计数（ Auto Reference Count, ARC） - Azure Yu
   
   </title>
-  <meta name="keywords" content="MWeb Blog" />
+  
   
   <link href="atom.xml" rel="alternate" title="Azure Yu" type="application/atom+xml">
     <link rel="stylesheet" href="asset/css/foundation.min.css" />
@@ -107,19 +107,19 @@
       <div class="markdown-body article-wrap">
        <div class="article">
           
-          <h1>Hello MWeb</h1>
+          <h1>自动引用计数（ Auto Reference Count, ARC）</h1>
      
         <div class="read-more clearfix">
-          <span class="date">2016/5/10</span>
+          <span class="date">2016/7/17</span>
 
           <span>posted in&nbsp;</span> 
           
-              <span class="posted-in"><a href='Tech.html'>Tech</a></span>
+              <span class="posted-in"><a href='iOS.html'>iOS</a></span>
            
          
           <span class="comments">
             
-              <a href="azureyu.com/2016-05-10-HelloMWeb.html#disqus_thread">comments</a>
+              <a href="azureyu.com/14641862206346.html#disqus_thread">comments</a>
             
 
             
@@ -129,66 +129,49 @@
       </div><!-- article -->
 
       <div class="article-content">
-      <p>作为重度Markdown使用者，个人很喜欢MWeb。决定将博客从Jekyll转为MWeb生成。</p>
-
-<p>下面是简单的步骤。</p>
-
-<span id="more"></span><!-- more -->
+      <blockquote>
+<p>2016-5-25 初稿</p>
+</blockquote>
 
 <ol>
-<li><p>在外部模式下(Command+L),新建分类并导入</p>
+<li><p>解决什么样的问题？什么时候释放对象。</p>
 
-<p><img src="media/14628758572486/MWeb-import.png" alt="MWeb-import"/></p></li>
-<li><p>点击编辑设置网站信息</p>
+<p>对象不同于一般的变量，生存周期受其作用域的影响。比如在函数内声明的变量，在函数之外就没有了作用。对象的生存周期是受其引用对象的影响。</p>
 
-<p><img src="media/14628758572486/MWeb-edit.png" alt="MWeb-edit"/></p>
+<p>引用的实质是使用指向其内存的指针。</p>
 
-<p>依次填写就可以了。<br/>
-高级设置中可以修改网站生成位置。<br/>
-<img src="media/14628758572486/MWeb-Setting.png" alt="MWeb-Setting"/></p></li>
-<li><p>添加分类</p>
+<p>当我们实例化对象时，也就为其分配了相应的内存，再通过指向对象的指针访问这些内存。释放就是把指向对应内存的指针给消除。而其实，对应内存的内容是没有去改变的。直到该内存下一次被使用时，其内容才会被改变。</p>
 
-<p><img src="media/14628758572486/Meb-classify.png" alt="Meb-classify"/></p>
+<p>什么是内存？计算机内存，是数据存储的地方。计算机存储存在着一种层次结构，如同三角型。因为越快的越贵，越大的越便宜，越大的也越慢。每一个内存都有其对应的地址。如果你学过操作系统，还应该知道，因为虚拟机的原因，程序使用的是虚拟内存，需要进行转换之后，得到实际的物理内存。</p>
 
-<p>将文章拖入对应的分类</p>
+<p>什么是指针？指针存储对象所在的内存地址。比如，寻宝图，你到达A地之后，A地会有指向B地的对应消息。这个消息就是指针。</p></li>
+<li><p>什么是引用计数？<br/>
+引用计数，是当一个对象A使用另一对象B时，对象B的引用数会加一。当对象B没有引用之后，便会释放。</p></li>
+<li><p>什么是自动引用计数？</p>
 
-<p><img src="media/14628758572486/class.gif" alt="class"/></p>
+<p>自动引用计数，即当对象被引用之后，会自动对其引用数加一；解除引用之后，会自动减一；没有引用之后，会自动释放。</p></li>
+<li><p>为什么需要自动引用计数？方便内存管理。</p></li>
+<li><p>什么时候不能使用？对于一些底层的类。</p></li>
+<li><p>存在着什么样的弊端？循环引用。<br/>
+循环引用，当A对象持有(引用)B对象，B对象持有A对象，此时彼此都在等待对方，导致内存无法释放。 </p>
 
-<p>设置每篇文章信息：</p>
+<p>如何解决？狭路相逢，要么有人仲裁，要么一方示弱。你可以手动解决，或者只将其中一方声明为weak引用。</p>
 
-<p><img src="media/14628758572486/MWeb-date.png" alt="MWeb-date"/></p></li>
-<li><p>生成网站</p>
-
-<p><img src="media/14628758572486/MWeb-WebGen.png" alt="MWeb-WebGen"/>     </p></li>
-<li><p>高级设置</p></li>
+<p>你可以通过定义类之间的关系为弱引用(weak)或者无主引用(unwoned)，以此替代强引用，从而解决循环强引用的问题。具体的</p></li>
+<li><p>其他语言中是如何做的呢？<br/>
+Java中采用的是垃圾回收机制(Garbage Collection, GC)。垃圾回收机制的基本原理是建立一棵树。</p></li>
 </ol>
 
-<p>可以自定义扩展：<br/>
-将如下代码存为DoucmentExtension.json</p>
+<p>GC也有不好的地方，对于实时的应用程序效果就不理想，因为你不知道CG会在什么时候发生。影响系统性能。</p>
 
-<pre><code>[{&quot;title&quot;:&quot;small omg&quot;,&quot;variableName&quot;:&quot;small_image&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;small image path&quot;},{&quot;title&quot;:&quot;featured&quot;,&quot;variableName&quot;:&quot;featured_image&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;featured image path&quot;},{&quot;title&quot;:&quot;excerpt&quot;,&quot;variableName&quot;:&quot;excerpt&quot;,&quot;inputFieldHeight&quot;:66,&quot;exampleText&quot;:&quot;&quot;},{&quot;title&quot;:&quot;sen KW&quot;,&quot;variableName&quot;:&quot;so_keywords&quot;,&quot;inputFieldHeight&quot;:44,&quot;exampleText&quot;:&quot;sen keywords&quot;},{&quot;title&quot;:&quot;sen Des&quot;,&quot;variableName&quot;:&quot;seo_des&quot;,&quot;inputFieldHeight&quot;:66,&quot;exampleText&quot;:&quot;sen description&quot;}]
-</code></pre>
+<blockquote>
+<p>Garbage collection does have its own problems. Languages like Java and Ruby aren’t as suited to <code>real-time applications</code> where timing is critical. In these languages you never know when garbage collection will occur. Of course there is research into these problems to solve this issue for real-time systems but in general C++ is probably a better choice for real-time applications. <br/>
+——《Programming Language》</p>
+</blockquote>
 
-<p>在文档扩展中导入：</p>
+<p>看编译原理第七章运行时环境，很多东西都讲了的。</p>
 
-<p><img src="media/14628758572486/setting.png" alt="setting"/></p>
-
-<p>同理，将一下代码存为SiteExtension.json</p>
-
-<pre><code>[{&quot;title&quot;:&quot;logo path&quot;,&quot;variableName&quot;:&quot;logo_path&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;240x240&quot;},{&quot;title&quot;:&quot;twitter&quot;,&quot;variableName&quot;:&quot;twitter_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your twitter url&quot;},{&quot;title&quot;:&quot;github&quot;,&quot;variableName&quot;:&quot;github_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your github url&quot;},{&quot;title&quot;:&quot;weibo&quot;,&quot;variableName&quot;:&quot;weibo_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your weibo url&quot;},{&quot;title&quot;:&quot;Facebook&quot;,&quot;variableName&quot;:&quot;facebook_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your Facebook url&quot;},{&quot;title&quot;:&quot;stack overflow&quot;,&quot;variableName&quot;:&quot;stackoverflow_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your stack overflow url&quot;},{&quot;title&quot;:&quot;linked&quot;,&quot;variableName&quot;:&quot;linkedin_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your linked url&quot;},{&quot;title&quot;:&quot;pinterest&quot;,&quot;variableName&quot;:&quot;interest_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your pinterest url&quot;},{&quot;title&quot;:&quot;quota&quot;,&quot;variableName&quot;:&quot;quora_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your quota url&quot;},{&quot;title&quot;:&quot;google&quot;,&quot;variableName&quot;:&quot;google_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your google plus url&quot;},{&quot;title&quot;:&quot;instagram&quot;,&quot;variableName&quot;:&quot;instagram_url&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your instagram url&quot;},{&quot;title&quot;:&quot;email&quot;,&quot;variableName&quot;:&quot;email&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;your email&quot;},{&quot;title&quot;:&quot;disqus&quot;,&quot;variableName&quot;:&quot;disqus_shortname&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;disqus short name&quot;},{&quot;title&quot;:&quot;duoshuo &quot;,&quot;variableName&quot;:&quot;duoshuo_shortname&quot;,&quot;inputFieldHeight&quot;:22,&quot;exampleText&quot;:&quot;duoshuo short name&quot;}]
-</code></pre>
-
-<p>在网站扩展中导入</p>
-
-<p><img src="media/14628758572486/%E8%AE%BE%E7%BD%AE2.png" alt="设置2"/></p>
-
-<p>最后在偏好设置中设置信息</p>
-
-<p><img src="media/14628758572486/%E5%81%8F%E5%A5%BD%E8%AE%BE%E7%BD%AE3.png" alt="偏好设置3"/></p>
-
-<p>其实就是把很多之前文档配置的内容，转化为了GUI展现。</p>
-
-<p>Jekyll用多了，再用这些其实都很简单。</p>
+<p>突然意识到，很多博客，不过是书籍的个人阐述，不如自己读书。</p>
 
       </div>
     
@@ -197,7 +180,7 @@
      <blockquote>
      <div>
           <ul>
-              <li>作者「<a href="http://azureyu.com" rel="author" class="pjax">AzureYu</a>」于  <span class="date">2016/5/10</span> 更新<a href="2016-05-10-HelloMWeb.html">本文</a></li>
+              <li>作者「<a href="http://azureyu.com" rel="author" class="pjax">AzureYu</a>」于  <span class="date">2016/7/17</span> 更新<a href="14641862206346.html">本文</a></li>
 
               <li>文章声明：自由转载-非商用-非衍生-保持署名  |  <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/deed.zh" target="_blank" rel="nofollow">BY-NC-SA</a></li>
           </ul>
@@ -208,16 +191,13 @@
         <div class="large-6 columns">
         <p class="text-left" style="padding:15px 0px;">
       
-          <a href="2016-05-14-iOS-Localizable.html" 
-          title="Previous Post: 让你的App说出多国语言——iOS开发之本地化(国际化)">&laquo; 让你的App说出多国语言——iOS开发之本地化(国际化)</a>
-      
         </p>
         </div>
         <div class="large-6 columns">
       <p class="text-right" style="padding:15px 0px;">
       
-          <a  href="2016-05-10-comipler.html" 
-          title="Next Post: 编译原理">编译原理 &raquo;</a>
+          <a  href="programminglanguage.html" 
+          title="Next Post: 关于编程语言的思考（上）Thinking of the Programming Language (Part 1)">关于编程语言的思考（上）Thinking of the Programming Language (Part 1) &raquo;</a>
       
       </p>
         </div>

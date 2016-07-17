@@ -4,13 +4,66 @@
   <title><![CDATA[Azure Yu]]></title>
   <link href="azureyu.com/atom.xml" rel="self"/>
   <link href="azureyu.com/"/>
-  <updated>2016-06-30T20:16:13+08:00</updated>
+  <updated>2016-07-17T12:55:54+08:00</updated>
   <id>azureyu.com/</id>
   <author>
     <name><![CDATA[]]></name>
     
   </author>
   <generator uri="http://www.mweb.im/">MWeb</generator>
+  
+  <entry>
+    <title type="html"><![CDATA[自动引用计数（ Auto Reference Count, ARC）]]></title>
+    <link href="azureyu.com/14641862206346.html"/>
+    <updated>2016-05-25T22:23:40+08:00</updated>
+    <id>azureyu.com/14641862206346.html</id>
+    <content type="html"><![CDATA[
+<blockquote>
+<p>2016-5-25 初稿</p>
+</blockquote>
+
+<ol>
+<li><p>解决什么样的问题？什么时候释放对象。</p>
+
+<p>对象不同于一般的变量，生存周期受其作用域的影响。比如在函数内声明的变量，在函数之外就没有了作用。对象的生存周期是受其引用对象的影响。</p>
+
+<p>引用的实质是使用指向其内存的指针。</p>
+
+<p>当我们实例化对象时，也就为其分配了相应的内存，再通过指向对象的指针访问这些内存。释放就是把指向对应内存的指针给消除。而其实，对应内存的内容是没有去改变的。直到该内存下一次被使用时，其内容才会被改变。</p>
+
+<p>什么是内存？计算机内存，是数据存储的地方。计算机存储存在着一种层次结构，如同三角型。因为越快的越贵，越大的越便宜，越大的也越慢。每一个内存都有其对应的地址。如果你学过操作系统，还应该知道，因为虚拟机的原因，程序使用的是虚拟内存，需要进行转换之后，得到实际的物理内存。</p>
+
+<p>什么是指针？指针存储对象所在的内存地址。比如，寻宝图，你到达A地之后，A地会有指向B地的对应消息。这个消息就是指针。</p></li>
+<li><p>什么是引用计数？<br/>
+引用计数，是当一个对象A使用另一对象B时，对象B的引用数会加一。当对象B没有引用之后，便会释放。</p></li>
+<li><p>什么是自动引用计数？</p>
+
+<p>自动引用计数，即当对象被引用之后，会自动对其引用数加一；解除引用之后，会自动减一；没有引用之后，会自动释放。</p></li>
+<li><p>为什么需要自动引用计数？方便内存管理。</p></li>
+<li><p>什么时候不能使用？对于一些底层的类。</p></li>
+<li><p>存在着什么样的弊端？循环引用。<br/>
+循环引用，当A对象持有(引用)B对象，B对象持有A对象，此时彼此都在等待对方，导致内存无法释放。 </p>
+
+<p>如何解决？狭路相逢，要么有人仲裁，要么一方示弱。你可以手动解决，或者只将其中一方声明为weak引用。</p>
+
+<p>你可以通过定义类之间的关系为弱引用(weak)或者无主引用(unwoned)，以此替代强引用，从而解决循环强引用的问题。具体的</p></li>
+<li><p>其他语言中是如何做的呢？<br/>
+Java中采用的是垃圾回收机制(Garbage Collection, GC)。垃圾回收机制的基本原理是建立一棵树。</p></li>
+</ol>
+
+<p>GC也有不好的地方，对于实时的应用程序效果就不理想，因为你不知道CG会在什么时候发生。影响系统性能。</p>
+
+<blockquote>
+<p>Garbage collection does have its own problems. Languages like Java and Ruby aren’t as suited to <code>real-time applications</code> where timing is critical. In these languages you never know when garbage collection will occur. Of course there is research into these problems to solve this issue for real-time systems but in general C++ is probably a better choice for real-time applications. <br/>
+——《Programming Language》</p>
+</blockquote>
+
+<p>看编译原理第七章运行时环境，很多东西都讲了的。</p>
+
+<p>突然意识到，很多博客，不过是书籍的个人阐述，不如自己读书。</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[关于编程语言的思考（上）Thinking of the Programming Language (Part 1)]]></title>
@@ -3621,97 +3674,6 @@ Beautiful+Instandly Recognizable</li>
 
 <p><a href="https://github.com/Yogayu/EmotionNote">源码地址</a></p>
 </blockquote>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[IBM个人赛Part1、Part2小结]]></title>
-    <link href="azureyu.com/2015-11-15-IBMMainFrameCompetition.html"/>
-    <updated>2016-05-10T14:36:11+08:00</updated>
-    <id>azureyu.com/2015-11-15-IBMMainFrameCompetition.html</id>
-    <content type="html"><![CDATA[
-<h2 id="toc_0">1.  先过脑子，再过机子</h2>
-
-<p>用小黑箱调试，没有办法设置断点，没有提示错误(后来上了大型机的课，也就会调试和看错误了)，只有自己不断的试错。添一段代码之后运行，对了再一点点的添，错了就不断缩小问题范围。</p>
-
-<span id="more"></span><!-- more -->
-
-<h2 id="toc_1">2. 要注意细节问题</h2>
-
-<p>太久没写C语言，逻辑上大多不会出错，会在基本的语法上出错。比如，本来应该是全局变量却声明为了main函数中的局部变量，单词拼写错误，未声明就使用。虽然很费事，但是也很难忘。</p>
-
-<ol>
-<li><p>zOS</p>
-
-<ul>
-<li><p>连接port</p></li>
-<li><p>登录logon</p></li>
-<li><p>登出logoff</p></li>
-</ul></li>
-<li><p>linux 基本命令 修改权限</p>
-
-<ul>
-<li><p>man，ls，cat打印到屏幕，less显示内容（大文件），mkdir，cd，cp，echo，chmod（修改权限 r,w,x ），which comandLine</p></li>
-<li><p>绝对地址与相对地址 ‘/z/bin’,’./(inside)’,’../(parent)&lsquo;</p></li>
-</ul></li>
-<li><p>主界面 ISPF</p>
-
-<ul>
-<li><p>数据管理 命令=3.4</p></li>
-<li><p>数据类型 sequential data set,  file ;partitioned data set.  a folder or a directory, members : files.</p></li>
-<li><p>添加数据 =2 PDSNAME(Membername)</p></li>
-<li><p>文本编辑 i d r</p></li>
-<li><p>=6 Command Shell 执行命令 EXEC &#39;ZOS.PUBLIC.REXX(COUNT)&rsquo; &lsquo;your_name&rsquo;</p></li>
-</ul></li>
-<li><p>编码，ASCII，EBCDIC</p>
-
-<ul>
-<li>hex on/off , hx</li>
-</ul></li>
-<li><p>JCL 运行某程序</p>
-
-<ul>
-<li><p>提交：tso submit jcl(sortjcl)</p></li>
-<li><p>查看状态：sub; =sd ; st</p></li>
-</ul></li>
-<li><p>JSON,COBOL 面向企业</p></li>
-<li><p>z/OS unix：</p>
-
-<ul>
-<li>进入：tso omvs</li>
-<li>拷贝文件：cp cp unameinfo &ldquo;//‘CN00474.P2.OUTPUT($010)&lsquo;&rdquo;</li>
-</ul></li>
-<li><p>Transaction Processing Facility (TPF) 文件</p>
-
-<ul>
-<li>JSON</li>
-<li>MongoDB
-
-<ul>
-<li>db.getCollection(’PNR’).find({PnrByNumber: {number: 88440}})
-db.getCollection(&#39;PNR&rsquo;).find({PnrByName: {name: &ldquo;JRTyler&rdquo;}})
-72 Quincy, Evanston, Illinois</li>
-</ul></li>
-</ul></li>
-<li><p>blue mix 构建云应用</p></li>
-<li><p>运行不同语言的程序，编译，连接，运行</p>
-
-<ul>
-<li>Source(POKER)-run by-&gt; JCL(POKERCMP)-output-&gt; LOAD(POKER)－run by－&gt;jcl(POKRUN16)-&gt;output result.</li>
-<li>tso submit jcl(POKERCMP)</li>
-<li>tso submit jcl(POKRUN16)</li>
-</ul></li>
-<li><p>修改程序</p>
-
-<ul>
-<li>小步加进式的调试</li>
-</ul></li>
-</ol>
-
-<h2 id="toc_2">后记</h2>
-
-<p>之后也选修大型机课程，再来看个人赛觉得是简单了很多，又系统的了解更多的大型机知识，当然多数时间在学习JCL和COBOL程序设计，不得不说编写大型机应用，更需要耐心。</p>
 
 ]]></content>
   </entry>
